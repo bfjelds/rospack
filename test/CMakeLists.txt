@@ -1,5 +1,5 @@
 include_directories(${PROJECT_SOURCE_DIR}/src)
-catkin_add_gtest(${PROJECT_NAME}-utest 
+ament_add_gtest(${PROJECT_NAME}-utest 
           test/utest.cpp ${PROJECT_SOURCE_DIR}/src/rospack_cmdline.cpp ${PROJECT_SOURCE_DIR}/src/utils.cpp
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 if(TARGET ${PROJECT_NAME}-utest)
@@ -18,5 +18,5 @@ configure_file(test/utest.py.in
                ${CMAKE_CURRENT_BINARY_DIR}/test/utest.py)
 configure_file(test/utest_rosstack.py.in
                ${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py)
-catkin_add_nosetests(${CMAKE_CURRENT_BINARY_DIR}/test
+ament_add_nosetests(${CMAKE_CURRENT_BINARY_DIR}/test
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)

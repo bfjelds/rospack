@@ -1,4 +1,5 @@
-<package>
+<?xml version='1.0' encoding='utf-8'?>
+<package format="2">
   <name>rospack</name>
   <version>2.4.1</version>
   <description>ROS Package Tool</description>
@@ -13,21 +14,27 @@
   <author>Morgan Quigley</author>
   <author>Dirk Thomas</author>
 
-  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+  <buildtool_depend version_gte="0.5.68">ament</buildtool_depend>
 
   <build_depend>boost</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>gtest</build_depend>
   <build_depend>pkg-config</build_depend>
+  <build_depend>python_cmake_mode</build_depend>
   <build_depend>python</build_depend>
   <build_depend>tinyxml2</build_depend>
 
-  <run_depend>boost</run_depend>
-  <run_depend>pkg-config</run_depend>
-  <run_depend>python</run_depend>
-  <run_depend>python-catkin-pkg</run_depend>
-  <run_depend>python-rosdep</run_depend>
-  <run_depend>tinyxml2</run_depend>
+  <exec_depend>boost</exec_depend>
+  <exec_depend>pkg-config</exec_depend>
+  <exec_depend>python_cmake_module</exec_depend>
+  <exec_depend>python</exec_depend>
+  <exec_depend>python-catkin-pkg</exec_depend>
+  <exec_depend>python-rosdep</exec_depend>
+  <exec_depend>tinyxml2</exec_depend>
 
   <test_depend>python-coverage</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

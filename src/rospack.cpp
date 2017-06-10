@@ -286,7 +286,7 @@ Rosstackage::logError(const std::string& msg,
 bool
 Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
 {
-  char* rpp = getenv("ROS_PACKAGE_PATH");
+  char* rpp = getenv("AMENT_PREFIX_PATH");
   if(rpp)
   {
     // I can't see that boost filesystem has an elegant cross platform
@@ -1645,7 +1645,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       }
       else
       {
-        std::string errmsg = get_manifest_type() + " '" + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check the ROS_PACKAGE_PATH or try calling 'rosdep update'";
+        std::string errmsg = get_manifest_type() + " '" + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check the AMENT_PREFIX_PATH or try calling 'rosdep update'";
         throw Exception(errmsg);
       }
     }
@@ -1952,7 +1952,7 @@ std::string
 Rosstackage::getCacheHash()
 {
   size_t value = 0;
-  char* rpp = getenv("ROS_PACKAGE_PATH");
+  char* rpp = getenv("AMENT_PREFIX_PATH");
   if(rpp != NULL) {
     boost::hash<std::string> hash_func;
     value = hash_func(rpp);
@@ -2067,8 +2067,8 @@ Rosstackage::writeCache()
       }
       else
       {
-        char *rpp = getenv("ROS_PACKAGE_PATH");
-        fprintf(cache, "#ROS_PACKAGE_PATH=%s\n", (rpp ? rpp : ""));
+        char *rpp = getenv("AMENT_PREFIX_PATH");
+        fprintf(cache, "#AMENT_PREFIX_PATH=%s\n", (rpp ? rpp : ""));
         for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
             it != stackages_.end();
             ++it)
@@ -2115,10 +2115,10 @@ Rosstackage::validateCache()
   if(!cache)
     return NULL; // it's not readable by us. sad.
 
-  // see if ROS_PACKAGE_PATH matches
+  // see if AMENT_PREFIX_PATH matches
   char linebuf[30000];
   bool ros_package_path_ok = false;
-  const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
+  const char* ros_package_path = getenv("AMENT_PREFIX_PATH");
   for(;;)
   {
     if(!fgets(linebuf, sizeof(linebuf), cache))
@@ -2126,7 +2126,7 @@ Rosstackage::validateCache()
     linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
     if (linebuf[0] == '#')
     {
-      if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
+      if(!strncmp("#AMENT_PREFIX_PATH=", linebuf, 18))
       {
         if(!ros_package_path)
         {

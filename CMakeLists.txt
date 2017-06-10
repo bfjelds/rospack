@@ -1,70 +1,94 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rospack)
 
-find_package(catkin REQUIRED COMPONENTS cmake_modules)
+# Add support for C++11
+if(NOT WIN32)
+  add_definitions(-std=c++11)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(cmake_modules REQUIRED)
+find_package(python_cmake_module REQUIRED)
+find_package(PythonExtra MODULE)
+
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
 set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
+find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
+  REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES rospack ${PYTHON_LIBRARIES}
-  DEPENDS Boost TinyXML2
-)
+set(INCLUDE_DIRS include ${ament_cmake_INCLUDE_DIRS} ${cmake_modules_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PythonExtra_INCLUDE_DIRS} ${PythonLibs_INCLUDE_DIRS})
+include_directories(${INCLUDE_DIRS})
+
+set(LIBRARY_DIRS ${ament_cmake_LIBRARY_DIRS} ${cmake_modules_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} ${PythonExtra_LIBRARY_DIRS} ${PythonLibs_LIBRARY_DIRS})
+
+link_directories(${LIBRARY_DIRS})
+
+set(LIBS ${ament_cmake_LIBRARIES} ${cmake_modules_LIBRARIES} ${Boost_LIBRARIES} ${PythonExtra_LIBRARIES} ${PythonLibs_LIBRARIES})
 
 #add_definitions(-Wall)
 
-set(API_BACKCOMPAT_V1 "YES" CACHE BOOL "Whether to enable backwards compatibility with old C++ API")
+set(API_BACKCOMPAT_V1 "YES"
+  CACHE
+  BOOL "Whether to enable backwards compatibility with old C++ API")
 if(API_BACKCOMPAT_V1)
   add_definitions(-DROSPACK_API_BACKCOMPAT_V1)
   set(backcompat_source src/rospack_backcompat.cpp)
 endif()
 
-include_directories(include ${TinyXML2_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-
-add_library(rospack
-  src/rospack.cpp
-  ${backcompat_source}
-  src/rospack_cmdline.cpp
-  src/utils.cpp
-)
-target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+add_library(rospack src/rospack.cpp ${backcompat_source} src/rospack_cmdline.cpp
+  src/utils.cpp)
+target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES})
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
-set_target_properties(rospackexe PROPERTIES
+set_target_properties(rospackexe
+  PROPERTIES
   OUTPUT_NAME rospack
-  RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/bin)
+  RUNTIME_OUTPUT_DIRECTORY bin)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
 add_executable(rosstackexe src/rosstack_main.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 # Set the name, and make it a "global" executable
-set_target_properties(rosstackexe PROPERTIES
+set_target_properties(rosstackexe
+  PROPERTIES
   OUTPUT_NAME rosstack
-  RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/bin)
+  RUNTIME_OUTPUT_DIRECTORY bin)
 
 install(TARGETS rospack rospackexe rosstackexe
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+  ARCHIVE
+  DESTINATION lib
+  LIBRARY
+  DESTINATION lib
+  RUNTIME
+  DESTINATION bin)
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h")
+  DESTINATION include/${PROJECT_NAME}
+  FILES_MATCHING
+  PATTERN "*.h")
 
 # uninstall target
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-  IMMEDIATE @ONLY)
-add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+#  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+#  IMMEDIATE @ONLY)
+#add_custom_target(uninstall
+#  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-if(CATKIN_ENABLE_TESTING)
-  add_subdirectory(test)
-endif()
+# TODO: fix tests
+#if(BUILD_TESTING)
+#  add_subdirectory(test)
+#endif()
 
 if(DOXYGEN_FOUND)
   add_custom_target(rospack-docs
     COMMAND doxygen Doxyfile
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
+
+ament_export_dependencies(ament_cmake)
+ament_export_dependencies(cmake_modules)
+ament_export_include_directories(${INCLUDE_DIRS})
+ament_export_libraries(rospack)
+
+ament_package()

@@ -34,7 +34,7 @@
 \b librospack is the ROS stackage (stack/package) management library.
 
 librospack is part dpkg, part pkg-config.  The main function of librospack is
-to crawl through the stackages in ROS_ROOT and ROS_PACKAGE_PATH, read and
+to crawl through the stackages in ROS_ROOT and AMENT_PREFIX_PATH, read and
 parse the \b manifest for each stackage, and assemble a complete
 dependency tree for all stackages.
 
@@ -49,7 +49,7 @@ librospack is intended to be cross-platform.
 
 \subsection crawling Crawling algorithm
 librospack crawls in the following order: the directory ROS_ROOT, followed by
-the colon-separated list of directories ROS_PACKAGE_PATH, in the order they
+the colon-separated list of directories AMENT_PREFIX_PATH, in the order they
 are listed.
 
 During the crawl, librospack examines the contents of each directory, looking
@@ -67,9 +67,9 @@ manifest, but its subdirectories are not crawled.
 If multiple stackages by the same name exist within the search path, the
 first one found wins.  It is strongly recommended that you keep stackages by
 the same name in separate trees, each having its own element within
-ROS_PACKAGE_PATH.  That way, you can deterministically control the search
-order by the way that you specify ROS_PACKAGE_PATH.  The search order
-within a given element of ROS_PACKAGE_PATH can be unpredictably affected by
+AMENT_PREFIX_PATH.  That way, you can deterministically control the search
+order by the way that you specify AMENT_PREFIX_PATH.  The search order
+within a given element of AMENT_PREFIX_PATH can be unpredictably affected by
 the details of how files are laid out on disk.
 
 \subsection efficiency Efficiency considerations
@@ -250,7 +250,7 @@ class ROSPACK_DECL Rosstackage
      * @brief Helper method to construct a directory search path by looking
      *        at relevant environment variables.  The value of ROS_ROOT goes
      *        first, followed by each element of a colon-separated
-     *        ROS_PACKAGE_PATH.
+     *        AMENT_PREFIX_PATH.
      * @param sp The computed search path is written here.
      * @return True if a search path was computed, false otherwise (e.g., ROS_ROOT not set).
      */
