@@ -535,16 +535,16 @@ re-run the profile with --zombie-only
      * @param append_errno If true, then append a colon, a space, and
      * the return from 'sterror(errno)'.
      */
-    void logWarn(const std::string& msg,
-                 bool append_errno = false);
+    void logWarning(const std::string& msg,
+		    bool append_errno = false);
     /**
      * @brief Log a error (usually goes to stderr).
      * @param msg The error.
      * @param append_errno If true, then append a colon, a space, and
      * the return from 'sterror(errno)'.
      */
-    void logError(const std::string& msg,
-                  bool append_errno = false);
+    void logErrorMsg(const std::string& msg,
+		     bool append_errno = false);
 
     /*
      * @brief The manifest type.

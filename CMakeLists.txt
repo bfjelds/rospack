@@ -6,6 +6,8 @@ if(NOT WIN32)
   add_definitions(-std=c++11)
 endif()
 
+add_definitions(-fPIC)
+
 find_package(ament_cmake REQUIRED)
 find_package(cmake_modules REQUIRED)
 find_package(python_cmake_module REQUIRED)
@@ -17,14 +19,17 @@ find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
   REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
-set(INCLUDE_DIRS include ${ament_cmake_INCLUDE_DIRS} ${cmake_modules_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PythonExtra_INCLUDE_DIRS} ${PythonLibs_INCLUDE_DIRS})
+set(INCLUDE_DIRS include ${ament_cmake_INCLUDE_DIRS} ${cmake_modules_INCLUDE_DIRS}
+  ${Tiny_XML2_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PythonExtra_INCLUDE_DIRS} ${PythonLibs_INCLUDE_DIRS})
 include_directories(${INCLUDE_DIRS})
 
-set(LIBRARY_DIRS ${ament_cmake_LIBRARY_DIRS} ${cmake_modules_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} ${PythonExtra_LIBRARY_DIRS} ${PythonLibs_LIBRARY_DIRS})
+set(LIBRARY_DIRS ${ament_cmake_LIBRARY_DIRS} ${cmake_modules_LIBRARY_DIRS}
+  ${Tiny_XML2_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} ${PythonExtra_LIBRARY_DIRS} ${PythonLibs_LIBRARY_DIRS})
 
 link_directories(${LIBRARY_DIRS})
 
-set(LIBS ${ament_cmake_LIBRARIES} ${cmake_modules_LIBRARIES} ${Boost_LIBRARIES} ${PythonExtra_LIBRARIES} ${PythonLibs_LIBRARIES})
+set(LIBS ${ament_cmake_LIBRARIES} ${cmake_modules_LIBRARIES}
+  ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PythonExtra_LIBRARIES} ${PythonLibs_LIBRARIES})
 
 #add_definitions(-Wall)
 
@@ -38,8 +43,7 @@ endif()
 
 add_library(rospack src/rospack.cpp ${backcompat_source} src/rospack_cmdline.cpp
   src/utils.cpp)
-target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES}
-  ${PYTHON_LIBRARIES})
+target_link_libraries(rospack ${LIBS} ${PYTHON_LIBRARIES})
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
@@ -47,9 +51,9 @@ set_target_properties(rospackexe
   PROPERTIES
   OUTPUT_NAME rospack
   RUNTIME_OUTPUT_DIRECTORY bin)
-target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
+target_link_libraries(rospackexe rospack ${LIBS})
 add_executable(rosstackexe src/rosstack_main.cpp)
-target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
+target_link_libraries(rosstackexe rospack ${LIBS})
 # Set the name, and make it a "global" executable
 set_target_properties(rosstackexe
   PROPERTIES
@@ -89,6 +93,6 @@ endif()
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(cmake_modules)
 ament_export_include_directories(${INCLUDE_DIRS})
-ament_export_libraries(rospack)
+ament_export_libraries(rospack ${LIBS})
 
 ament_package()

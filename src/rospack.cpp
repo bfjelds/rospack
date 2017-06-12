@@ -28,6 +28,7 @@
 #include "rospack/rospack.h"
 #include "utils.h"
 #include "tinyxml2.h"
+#include <iostream>  // TODO: delete this
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -271,13 +272,13 @@ void Rosstackage::clearStackages()
 }
 
 void
-Rosstackage::logWarn(const std::string& msg,
+Rosstackage::logWarning(const std::string& msg,
                      bool append_errno)
 {
   log("Warning", msg, append_errno);
 }
 void
-Rosstackage::logError(const std::string& msg,
+Rosstackage::logErrorMsg(const std::string& msg,
                       bool append_errno)
 {
   log("Error", msg, append_errno);
@@ -327,7 +328,7 @@ Rosstackage::isStackage(const std::string& path)
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while looking at ") + path + ": " + e.what());
+    logWarning(std::string("error while looking at ") + path + ": " + e.what());
     return false;
   }
 
@@ -350,7 +351,7 @@ Rosstackage::isStackage(const std::string& path)
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while crawling ") + path + ": " + e.what());
+    logWarning(std::string("error while crawling ") + path + ": " + e.what());
   }
   return false;
 }
@@ -464,7 +465,7 @@ Rosstackage::contents(const std::string& name,
   }
   else
   {
-    logError(std::string("stack ") + name + " not found");
+    logErrorMsg(std::string("stack ") + name + " not found");
     return false;
   }
 }
@@ -497,7 +498,7 @@ Rosstackage::contains(const std::string& name,
     }
   }
 
-  logError(std::string("stack containing package ") + name + " not found");
+  logErrorMsg(std::string("stack containing package ") + name + " not found");
   return false;
 }
 
@@ -609,7 +610,7 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -634,7 +635,7 @@ Rosstackage::depsWhy(const std::string& from,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return true;
   }
   output.append(std::string("Dependency chains from ") +
@@ -676,7 +677,7 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -723,7 +724,7 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -798,7 +799,7 @@ Rosstackage::vcs(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -909,7 +910,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -1006,7 +1007,7 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -1034,7 +1035,7 @@ Rosstackage::exports_dry_package(Stackage* stackage, const std::string& lang,
         if(g_ros_os == std::string(os_str))
         {
           if(os_match)
-            logWarn(std::string("ignoring duplicate ") + lang + " tag with os=" + os_str + " in export block");
+            logWarning(std::string("ignoring duplicate ") + lang + " tag with os=" + os_str + " in export block");
           else
           {
             best_match = ele2->Attribute(attrib.c_str());
@@ -1047,7 +1048,7 @@ Rosstackage::exports_dry_package(Stackage* stackage, const std::string& lang,
         if(!best_match)
           best_match = ele2->Attribute(attrib.c_str());
         else
-          logWarn(std::string("ignoring duplicate ") + lang + " tag in export block");
+          logWarning(std::string("ignoring duplicate ") + lang + " tag in export block");
       }
 
     }
@@ -1176,7 +1177,7 @@ Rosstackage::depsMsgSrv(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -1214,7 +1215,7 @@ Rosstackage::findWithRecrawl(const std::string& name)
       return stackages_[name];
   }
 
-  logError(get_manifest_type() + " '" + name + "' not found");
+  logErrorMsg(get_manifest_type() + " '" + name + "' not found");
   return NULL;
 }
 
@@ -1226,7 +1227,7 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
   // top level to do it.
   if(!stackages_.count(name))
   {
-    logError(std::string("no such package ") + name);
+    logErrorMsg(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -1242,7 +1243,7 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -1288,7 +1289,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
   // start.
   if(!stackages_.count(name))
   {
-    logError(std::string("no such package ") + name);
+    logErrorMsg(std::string("no such package ") + name);
     return false;
   }
   try
@@ -1314,7 +1315,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    logError(e.what());
+    logErrorMsg(e.what());
     return false;
   }
   return true;
@@ -1450,7 +1451,7 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while looking at ") + path + ": " + e.what());
+    logWarning(std::string("error while looking at ") + path + ": " + e.what());
     return;
   }
 
@@ -1462,7 +1463,7 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while looking for ") + catkin_ignore.string() + ": " + e.what());
+    logWarning(std::string("error while looking for ") + catkin_ignore.string() + ": " + e.what());
   }
 
   if(isStackage(path))
@@ -1479,7 +1480,7 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while looking for ") + nosubdirs.string() + ": " + e.what());
+    logWarning(std::string("error while looking for ") + nosubdirs.string() + ": " + e.what());
   }
 
   // We've already checked above whether CWD contains the kind of manifest
@@ -1493,7 +1494,7 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while looking for ") + rospack_manifest.string() + ": " + e.what());
+    logWarning(std::string("error while looking for ") + rospack_manifest.string() + ": " + e.what());
   }
 
   DirectoryCrawlRecord* dcr = NULL;
@@ -1534,7 +1535,7 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while crawling ") + path + ": " + e.what());
+    logWarning(std::string("error while crawling ") + path + ": " + e.what());
   }
 
   if(collect_profile_data && dcr != NULL)
@@ -1941,7 +1942,7 @@ Rosstackage::getCachePath()
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("cannot create rospack cache directory ") +
+    logWarning(std::string("cannot create rospack cache directory ") +
             cache_path.string() + ": " + e.what());
   }
   cache_path /= cache_prefix_ + "_" + getCacheHash();
@@ -2000,7 +2001,7 @@ Rosstackage::writeCache()
   std::string cache_path = getCachePath();
   if(!cache_path.size())
   {
-    logWarn("no location available to write cache file. Try setting ROS_HOME or HOME.");
+    logWarning("no location available to write cache file. Try setting ROS_HOME or HOME.");
   }
   else
   {
@@ -2033,7 +2034,7 @@ Rosstackage::writeCache()
     int fd = open(tmp_cache_path, O_RDWR | O_EXCL | _O_CREAT, 0644);
     if (fd < 0)
     {
-      logWarn(std::string("unable to create temporary cache file ") +
+      logWarning(std::string("unable to create temporary cache file ") +
                    tmp_cache_path, true);
     }
     else
@@ -2202,7 +2203,7 @@ Rosstackage::expandExportString(Stackage* stackage,
             std::string("failed to execute backquote expression ") +
             cmd + " in " +
             stackage->manifest_path_;
-    logWarn(errmsg, true);
+    logWarning(errmsg, true);
     return false;
   }
   else
