@@ -261,7 +261,7 @@ Rosstackage::~Rosstackage()
 
 void Rosstackage::clearStackages()
 {
-  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+  for(std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
       it != stackages_.end();
       ++it)
   {
@@ -384,7 +384,7 @@ Rosstackage::crawl(std::vector<std::string> search_path,
   search_paths_ = search_path;
 
   std::vector<DirectoryCrawlRecord*> dummy;
-  std::tr1::unordered_set<std::string> dummy2;
+  std::unordered_set<std::string> dummy2;
   for(std::vector<std::string>::const_iterator p = search_paths_.begin();
       p != search_paths_.end();
       ++p)
@@ -449,7 +449,7 @@ Rosstackage::contents(const std::string& name,
                       std::set<std::string>& packages)
 {
   Rospack rp2;
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
+  std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
   if(it != stackages_.end())
   {
     std::vector<std::string> search_paths;
@@ -476,7 +476,7 @@ Rosstackage::contains(const std::string& name,
                       std::string& path)
 {
   Rospack rp2;
-  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+  for(std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
       it != stackages_.end();
       ++it)
   {
@@ -505,7 +505,7 @@ Rosstackage::contains(const std::string& name,
 void
 Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
 {
-  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+  for(std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
       it != stackages_.end();
       ++it)
   {
@@ -521,7 +521,7 @@ Rosstackage::listDuplicates(std::vector<std::string>& dups)
 {
   dups.resize(dups_.size());
   int i = 0;
-  for(std::tr1::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
+  for(std::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
       it != dups_.end();
       ++it)
   {
@@ -534,7 +534,7 @@ void
 Rosstackage::listDuplicatesWithPaths(std::map<std::string, std::vector<std::string> >& dups)
 {
   dups.clear();
-  for(std::tr1::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
+  for(std::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
       it != dups_.end();
       ++it)
   {
@@ -600,7 +600,7 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
   {
     computeDeps(stackage);
     std::vector<Stackage*> deps_vec;
-    std::tr1::unordered_set<Stackage*> deps_hash;
+    std::unordered_set<Stackage*> deps_hash;
     std::vector<std::string> indented_deps;
     gatherDepsFull(stackage, direct, POSTORDER, 0, deps_hash, deps_vec, true, indented_deps);
     for(std::vector<std::string>::const_iterator it = indented_deps.begin();
@@ -1091,7 +1091,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
   if(!depsOnDetail(name, true, stackages, true))
     return false;
   // Also look in the package itself
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
+  std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
   if(it != stackages_.end())
   {
     // don't warn here; it was done in depsOnDetail()
@@ -1104,7 +1104,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
     std::vector<Stackage*> top_deps;
     if(!depsDetail(top, false, top_deps))
       return false;
-    std::tr1::unordered_set<Stackage*> top_deps_set;
+    std::unordered_set<Stackage*> top_deps_set;
     for(std::vector<Stackage*>::iterator it = top_deps.begin();
         it != top_deps.end();
         ++it)
@@ -1294,7 +1294,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
   }
   try
   {
-    for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+    for(std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
         it != stackages_.end();
         ++it)
     {
@@ -1329,7 +1329,7 @@ Rosstackage::profile(const std::vector<std::string>& search_path,
 {
   double start = time_since_epoch();
   std::vector<DirectoryCrawlRecord*> dcrs;
-  std::tr1::unordered_set<std::string> dcrs_hash;
+  std::unordered_set<std::string> dcrs_hash;
   for(std::vector<std::string>::const_iterator p = search_path.begin();
       p != search_path.end();
       ++p)
@@ -1439,7 +1439,7 @@ Rosstackage::crawlDetail(const std::string& path,
                          int depth,
                          bool collect_profile_data,
                          std::vector<DirectoryCrawlRecord*>& profile_data,
-                         std::tr1::unordered_set<std::string>& profile_hash)
+                         std::unordered_set<std::string>& profile_hash)
 {
   if(depth > MAX_CRAWL_DEPTH)
     throw Exception("maximum depth exceeded during crawl");
@@ -1788,7 +1788,7 @@ Rosstackage::gatherDeps(Stackage* stackage, bool direct,
                         std::vector<Stackage*>& deps,
                         bool no_recursion_on_wet)
 {
-  std::tr1::unordered_set<Stackage*> deps_hash;
+  std::unordered_set<Stackage*> deps_hash;
   std::vector<std::string> indented_deps;
   gatherDepsFull(stackage, direct, order, 0,
                  deps_hash, deps, false, indented_deps, no_recursion_on_wet);
@@ -1797,7 +1797,7 @@ Rosstackage::gatherDeps(Stackage* stackage, bool direct,
 void
 _gatherDepsFull(Stackage* stackage, bool direct,
                             traversal_order_t order, int depth,
-                            std::tr1::unordered_set<Stackage*>& deps_hash,
+                            std::unordered_set<Stackage*>& deps_hash,
                             std::vector<Stackage*>& deps,
                             bool get_indented_deps,
                             std::vector<std::string>& indented_deps,
@@ -1883,7 +1883,7 @@ _gatherDepsFull(Stackage* stackage, bool direct,
 void
 Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
                             traversal_order_t order, int depth,
-                            std::tr1::unordered_set<Stackage*>& deps_hash,
+                            std::unordered_set<Stackage*>& deps_hash,
                             std::vector<Stackage*>& deps,
                             bool get_indented_deps,
                             std::vector<std::string>& indented_deps,
@@ -2070,7 +2070,7 @@ Rosstackage::writeCache()
       {
         char *rpp = getenv("AMENT_PREFIX_PATH");
         fprintf(cache, "#AMENT_PREFIX_PATH=%s\n", (rpp ? rpp : ""));
-        for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+        for(std::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
             it != stackages_.end();
             ++it)
           fprintf(cache, "%s\n", it->second->path_.c_str());
