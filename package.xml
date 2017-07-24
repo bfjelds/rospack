@@ -14,7 +14,7 @@
   <author>Morgan Quigley</author>
   <author>Dirk Thomas</author>
 
-  <buildtool_depend version_gte="0.5.68">ament</buildtool_depend>
+  <buildtool_depend version_gte="0.5.68">ament_cmake</buildtool_depend>
 
   <build_depend>boost</build_depend>
   <build_depend>cmake_modules</build_depend>
