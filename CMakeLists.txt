@@ -13,23 +13,41 @@ find_package(cmake_modules REQUIRED)
 find_package(python_cmake_module REQUIRED)
 find_package(PythonExtra MODULE)
 
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
 set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
   REQUIRED)
-find_package(TinyXML2 REQUIRED)
+
+find_package(TinyXML2 REQUIRED HINTS "*.lib") # add hint seems to allow debug lib to be found when appropriate
 
 set(INCLUDE_DIRS include ${ament_cmake_INCLUDE_DIRS} ${cmake_modules_INCLUDE_DIRS}
-  ${Tiny_XML2_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PythonExtra_INCLUDE_DIRS} ${PythonLibs_INCLUDE_DIRS})
+  ${TinyXML2_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PythonExtra_INCLUDE_DIRS} ${PythonLibs_INCLUDE_DIRS})
 include_directories(${INCLUDE_DIRS})
 
 set(LIBRARY_DIRS ${ament_cmake_LIBRARY_DIRS} ${cmake_modules_LIBRARY_DIRS}
-  ${Tiny_XML2_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} ${PythonExtra_LIBRARY_DIRS} ${PythonLibs_LIBRARY_DIRS})
+  ${TinyXML2_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} ${PythonExtra_LIBRARY_DIRS} ${PythonLibs_LIBRARY_DIRS})
 
 link_directories(${LIBRARY_DIRS})
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+set(BOOST_DEPENDENCIES
+  $ENV{BOOST_LIBRARYDIR}/libboost_date_time-vc140-mt-gd-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_thread-vc140-mt-gd-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_system-vc140-mt-gd-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_chrono-vc140-mt-gd-1_61.lib
+)
+else()
+set(BOOST_DEPENDENCIES
+  $ENV{BOOST_LIBRARYDIR}/libboost_date_time-vc140-mt-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_thread-vc140-mt-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_system-vc140-mt-1_61.lib
+  $ENV{BOOST_LIBRARYDIR}/libboost_chrono-vc140-mt-1_61.lib
+)
+endif()
+
 set(LIBS ${ament_cmake_LIBRARIES} ${cmake_modules_LIBRARIES}
-  ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PythonExtra_LIBRARIES} ${PythonLibs_LIBRARIES})
+  ${TinyXML2_LIBRARIES} ${BOOST_DEPENDENCIES} ${PythonExtra_LIBRARIES} ${PythonLibs_LIBRARIES})
 
 #add_definitions(-Wall)
 
@@ -41,7 +59,7 @@ if(API_BACKCOMPAT_V1)
   set(backcompat_source src/rospack_backcompat.cpp)
 endif()
 
-add_library(rospack src/rospack.cpp ${backcompat_source} src/rospack_cmdline.cpp
+add_library(rospack SHARED src/rospack.cpp ${backcompat_source} src/rospack_cmdline.cpp
   src/utils.cpp)
 target_link_libraries(rospack ${LIBS} ${PYTHON_LIBRARIES})
 
@@ -51,9 +69,9 @@ set_target_properties(rospackexe
   PROPERTIES
   OUTPUT_NAME rospack
   RUNTIME_OUTPUT_DIRECTORY bin)
-target_link_libraries(rospackexe rospack ${LIBS})
+target_link_libraries(rospackexe rospack)
 add_executable(rosstackexe src/rosstack_main.cpp)
-target_link_libraries(rosstackexe rospack ${LIBS})
+target_link_libraries(rosstackexe rospack)
 # Set the name, and make it a "global" executable
 set_target_properties(rosstackexe
   PROPERTIES
@@ -93,6 +111,6 @@ endif()
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(cmake_modules)
 ament_export_include_directories(${INCLUDE_DIRS})
-ament_export_libraries(rospack ${LIBS})
+ament_export_libraries(rospack)
 
 ament_package()

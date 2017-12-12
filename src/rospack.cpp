@@ -155,7 +155,7 @@ class Stackage
     // \brief have we already loaded the manifest?
     bool manifest_loaded_;
     // \brief TinyXML structure, filled in during parsing
-    XMLDocument manifest_;
+    tinyxml2::XMLDocument manifest_;
     std::vector<Stackage*> deps_;
     bool deps_computed_;
     bool is_wet_package_;
@@ -1401,7 +1401,16 @@ Rosstackage::addStackage(const std::string& path)
   else if(fs::is_regular_file(wet_manifest_path))
   {
     stackage = new Stackage(name, path, wet_manifest_path.string(), ROSPACKAGE_MANIFEST_NAME);
-    loadManifest(stackage);
+    // TODO: handle package.xml files that have <?xml>
+    try 
+    {
+      loadManifest(stackage);
+    }
+    catch(...)
+    {
+      delete stackage;
+      return;
+	  }
     stackage->update_wet_information();
   }
   else
